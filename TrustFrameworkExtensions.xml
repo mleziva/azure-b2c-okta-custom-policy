@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_{Settings:Environment}_TrustFrameworkExtensions" PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_{Settings:Environment}_TrustFrameworkExtensions">
+
+  <BasePolicy>
+    <TenantId>{Settings:Tenant}</TenantId>
+    <PolicyId>B2C_1A_{Settings:Environment}_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <Domain>okta.com</Domain>
+      <DisplayName>Okta</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="Okta-OIDC">
+          <DisplayName>Okta Account</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <Metadata>
+            <Item Key="ProviderName">https://dev-392124.okta.com/oauth2/default</Item>
+            <Item Key="METADATA">https://dev-392124.okta.com/oauth2/default/.well-known/openid-configuration</Item>
+            <Item Key="response_types">code</Item>
+            <Item Key="response_mode">form_post</Item>
+            <Item Key="scope">openid profile email</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">0</Item>
+            <Item Key="client_id">{Settings:OktaClientId}</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_OktaSecret" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="okta.com" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="sub" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="email" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+            <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <!-- Microsoft Account -->
+    <ClaimsProvider>
+      <Domain>live.com</Domain>
+      <DisplayName>Microsoft Account</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="MSA-OIDC">
+          <DisplayName>Microsoft Account</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <Metadata>
+            <Item Key="ProviderName">https://login.live.com</Item>
+            <Item Key="METADATA">https://login.live.com/.well-known/openid-configuration</Item>
+            <Item Key="response_types">code</Item>
+            <Item Key="response_mode">form_post</Item>
+            <Item Key="scope">openid profile email</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">0</Item>
+            <Item Key="client_id">{Settings:MicrosoftClientId}</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_MSASecret" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="live.com" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="sub" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="email" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+            <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Local Account SignIn</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="login-NonInteractive">
+          <Metadata>
+            <Item Key="client_id">{Settings:ProxyIdentityExperienceFrameworkAppId}</Item>
+            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFrameworkAppId}</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFrameworkAppId}" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFrameworkAppId}" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpSignInOkta">
+      <OrchestrationSteps>
+
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="OktaExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="OktaExchange2" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="MicrosoftAccountExchange" />
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Check if the user has selected to sign in using one of the social providers -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="OktaExchange" TechnicalProfileReferenceId="Okta-OIDC" />
+            <ClaimsExchange Id="OktaExchange2" TechnicalProfileReferenceId="Okta-2" />
+            <ClaimsExchange Id="MicrosoftAccountExchange" TechnicalProfileReferenceId="MSA-OIDC" />
+            <!-- <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" /> -->
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- For social IDP authentication, attempt to find the user account in the directory. -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Show self-asserted page only if the directory does not have the user account already (i.e. we do not have an objectId). 
+          This can only happen when authentication happened using a social IDP. If local account was created or authentication done
+          using ESTS in step 2, then an user account must exist in the directory by this time. -->
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SelfAsserted-Social" TechnicalProfileReferenceId="SelfAsserted-Social" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
+          in the token. -->
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>socialIdpAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no attributes to collect 
+             from the user. So, in that case, create the user in the directory if one does not already exist 
+             (verified using objectId which would be set from the last step if account was created in the directory. -->
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+
+    <!-- This journey only has a single option, allowing B2C to sign in an authenticated user without prompting him/her to select an account -->
+    <UserJourney Id="SignUpSignInOktaDefault">
+      <OrchestrationSteps>
+
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="OktaExchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+
+        <!-- Check if the user has selected to sign in using one of the social providers -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="OktaExchange" TechnicalProfileReferenceId="Okta-OIDC" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- For social IDP authentication, attempt to find the user account in the directory. -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Create the user in the directory if one does not already exist 
+             (verified using objectId which would be set from the last step if account was created in the directory. -->
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+  </UserJourneys>
+
+</TrustFrameworkPolicy>
