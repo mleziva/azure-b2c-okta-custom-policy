@@ -18,6 +18,15 @@ After first sign-in, the user may enter their name information
 
 Only allows sign in using Okta. If someone is already authenticated, B2C will not prompt again
 
+
+**SignInLinkLocalToOkta Policy**
+
+Allows a user to sign in or create a local account and then link that to an Okta account
+
+
+**SignInLinkOktaToLocal Policy**
+
+Allows a user to sign in with Okta and then create a new local account to link to or link to an existing local account
 <hr/>
 
 ## Quickstart:
