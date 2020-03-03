@@ -80,6 +80,14 @@
                 <DataType>stringCollection</DataType>
                 <UserHelpText>User identity providers. This information is received from alternativeSecurityIds</UserHelpText>
             </ClaimType>
+
+            <ClaimType Id="isLinked">
+                <DisplayName>is Linked</DisplayName>
+                <DataType>boolean</DataType>
+                <AdminHelpText>isLinked</AdminHelpText>
+                <UserHelpText>isLinked</UserHelpText>
+            </ClaimType>
+
         </ClaimsSchema>
 
         <ClaimsTransformations>
@@ -160,6 +168,15 @@
                 </OutputClaims>
             </ClaimsTransformation>
 
+            <ClaimsTransformation Id="CheckIfAccountIsLinked" TransformationMethod="DoesClaimExist">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="objectId" TransformationClaimType="inputClaim" />
+                </InputClaims>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="isLinked" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+
         </ClaimsTransformations>
     </BuildingBlocks>
 
@@ -213,6 +230,9 @@
                     <Metadata>
                         <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
                     </Metadata>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="CheckIfAccountIsLinked" />
+                    </OutputClaimsTransformations>
                     <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingUserIdentity" />
                 </TechnicalProfile>
 

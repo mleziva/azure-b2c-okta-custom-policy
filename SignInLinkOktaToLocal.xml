@@ -32,7 +32,7 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- For social IDP authentication, attempt to find the user account in the directory. -->
+        <!-- Attempt to find the user account in the directory. If found we know that the social account has already been linked -->
         <OrchestrationStep Order="3" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
@@ -91,6 +91,13 @@
 
         <!--Sample: Displays the sign-in the social account buttons.-->
         <OrchestrationStep Order="7" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.idpselections">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>isLinked</Value>
+              <Value>True</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
           <ClaimsProviderSelections>
             <ClaimsProviderSelection TargetClaimsExchangeId="LinkOktaExchange"/>
           </ClaimsProviderSelections>
@@ -105,6 +112,13 @@
 
         <!-- Sample: Attempt to find the second user account in the directory. -->
         <OrchestrationStep Order="9" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>isLinked</Value>
+              <Value>True</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="AAADUserReadUsingUserIdentityToLink" TechnicalProfileReferenceId="AAD-UserReadUsingUserIdentityToLink-NoError"/>
           </ClaimsExchanges>
@@ -125,6 +139,13 @@
 
         <!-- Sample: Link the new social account. -->
         <OrchestrationStep Order="11" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>isLinked</Value>
+              <Value>True</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="UpdateUserIdentities" TechnicalProfileReferenceId="AAD-UserUpdateWithUserIdentities"/>
           </ClaimsExchanges>
